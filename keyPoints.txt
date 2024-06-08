@@ -1,0 +1,1 @@
+1. When using authentication from passport.js or auth0 , we need to take google key, but with firebase's google auth we don't need to take google's auth key by ourselfs , firebase manages own it's own.

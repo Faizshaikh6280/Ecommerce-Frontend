@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import Login from "./pages/login";
 import Shipping from "./pages/pages";
 import Orders from "./pages/Order";
+import { Toaster } from "react-hot-toast";
 
 const Home = lazy(() => import("./pages/Home"));
 const Cart = lazy(() => import("./pages/Cart"));
@@ -82,6 +83,7 @@ export default function App() {
           {/* </Route> */};
         </Routes>
       </Suspense>
+      <Toaster position="bottom-center"/>
     </BrowserRouter>
   );
 }
