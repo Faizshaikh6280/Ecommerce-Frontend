@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "./redux/slices/userSlice";
 import { getUser } from "./redux/api/userApi";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PageNotFound from "./components/PageNotFound";
 import Login from "./pages/login";
 
 const Home = lazy(() => import("./pages/Home"));
@@ -125,7 +126,7 @@ export default function App() {
               element={<TransactionManagement />}
             />
           </Route>
-          ;
+          <Route path="*" element={<PageNotFound />}></Route>;
         </Routes>
       </Suspense>
       <Toaster
