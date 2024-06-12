@@ -1,11 +1,18 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Loader from "./components/Loader";
 import Header from "./components/Header";
-import Login from "./pages/login";
+import Signup from "./pages/signup";
 import Shipping from "./pages/pages";
 import Orders from "./pages/Order";
 import { Toaster } from "react-hot-toast";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "./redux/slices/userSlice";
+import { getUser } from "./redux/api/userApi";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./pages/login";
 
 const Home = lazy(() => import("./pages/Home"));
 const Cart = lazy(() => import("./pages/Cart"));
@@ -27,63 +34,120 @@ const NewProduct = lazy(() => import("./pages/admin/management/newproduct"));
 const ProductManagement = lazy(
   () => import("./pages/admin/management/productmanagement")
 );
+
 const TransactionManagement = lazy(
   () => import("./pages/admin/management/transactionmanagement")
 );
 
 export default function App() {
-  return (
+  const dispatch = useDispatch();
+  const { user, isLoading } = useSelector((store) => store.user);
+  useEffect(
+    function () {
+      onAuthStateChanged(auth, async (user) => {
+        // means user is signed in
+        if (user) {
+          const { data } = await getUser(user.uid);
+          dispatch(setUser(data[0]));
+        } else {
+          dispatch(setUser(null));
+        }
+      });
+    },
+    [dispatch]
+  );
+
+  return isLoading ? (
+    <Loader />
+  ) : (
     <BrowserRouter>
-      <Header />
+      <Header user={user} />
       <Suspense fallback={<Loader />}>
         {/* Header */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/login" element={<Login />} />
-          {/* Logged In User Routes */}
-          {/* <Route
-            element={<ProtectedRoute isAuthenticated={user ? true : false} />}
-          > */}
-          <Route path="/shipping" element={<Shipping />} />
-          <Route path="/orders" element={<Orders />} />
-          {/* <Route path="/order/:id" element={<OrderDetails />} /> */}
-          {/* <Route path="/pay" element={<Checkout />} /> */}
-          {/* </Route> */}
-          {/* Admin routes */}
-          {/* <Route
-          element={
-            <ProtectedRoute
-              isAuthenticated={true}
-              adminRoute={true}
-              isAdmin={true}
-            />
-          }
-        > */}
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/product" element={<Products />} />
-          <Route path="/admin/customer" element={<Customers />} />
-          <Route path="/admin/transaction" element={<Transaction />} />
-          {/* Charts */}
-          <Route path="/admin/chart/bar" element={<Barcharts />} />
-          <Route path="/admin/chart/pie" element={<Piecharts />} />
-          <Route path="/admin/chart/line" element={<Linecharts />} />
-          {/* Apps */}
-          <Route path="/admin/app/coupon" element={<Coupon />} />
-          <Route path="/admin/app/stopwatch" element={<Stopwatch />} />
-          <Route path="/admin/app/toss" element={<Toss />} />
-          {/* Management */}
-          <Route path="/admin/product/new" element={<NewProduct />} />
-          <Route path="/admin/product/:id" element={<ProductManagement />} />
           <Route
-            path="/admin/transaction/:id"
-            element={<TransactionManagement />}
-          />
-          {/* </Route> */};
+            path="/"
+            element={
+              <ProtectedRoute
+                isAuthenticated={user ? false : true}
+                redirect={"/"}
+              />
+            }
+          >
+            <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/signup" element={<Signup />} />
+          </Route>
+          {/* Logged In User Routes */}
+          <Route
+            element={
+              <ProtectedRoute
+                isAuthenticated={user ? true : false}
+                redirect="/"
+              />
+            }
+          >
+            <Route path="/shipping" element={<Shipping />} />
+            <Route path="/orders" element={<Orders />} />
+            {/* <Route path="/order/:id" element={<OrderDetails />} /> */}
+            {/* <Route path="/pay" element={<Checkout />} /> */}
+          </Route>
+          {/* Admin routes */}
+          <Route
+            element={
+              <ProtectedRoute
+                isAuthenticated={user ? true : false}
+                adminRoute={true}
+                isAdmin={user?.role === "admin" ? true : false}
+                redirect="/"
+              />
+            }
+          >
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/product" element={<Products />} />
+            <Route path="/admin/customer" element={<Customers />} />
+            <Route path="/admin/transaction" element={<Transaction />} />
+            {/* Charts */}
+            <Route path="/admin/chart/bar" element={<Barcharts />} />
+            <Route path="/admin/chart/pie" element={<Piecharts />} />
+            <Route path="/admin/chart/line" element={<Linecharts />} />
+            {/* Apps */}
+            <Route path="/admin/app/coupon" element={<Coupon />} />
+            <Route path="/admin/app/stopwatch" element={<Stopwatch />} />
+            <Route path="/admin/app/toss" element={<Toss />} />
+            {/* Management */}
+            <Route path="/admin/product/new" element={<NewProduct />} />
+            <Route path="/admin/product/:id" element={<ProductManagement />} />
+            <Route
+              path="/admin/transaction/:id"
+              element={<TransactionManagement />}
+            />
+          </Route>
+          ;
         </Routes>
       </Suspense>
-      <Toaster position="bottom-center"/>
+      <Toaster
+        position="top-center"
+        gutter={12}
+        containerStyle={{ margin: "8px" }}
+        toastOptions={{
+          success: {
+            duration: 4000,
+          },
+          error: {
+            duration: 5000,
+          },
+          style: {
+            padding: "16px 24px",
+            fontSize: "16px",
+            maxWidth: "500px",
+            backgroundColor: " #fff",
+            color: "#374151",
+          },
+        }}
+      />
     </BrowserRouter>
   );
 }

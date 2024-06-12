@@ -1,3 +1,4 @@
+import { signOut } from "firebase/auth";
 import { useState } from "react";
 import {
   FaSearch,
@@ -7,15 +8,20 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { auth } from "../../firebase";
+import toast from "react-hot-toast";
 
-const user = {
-  id: "",
-  role: "user",
-};
-
-function Header() {
+function Header({ user }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  function logoutHandler() {}
+  async function logoutHandler() {
+    try {
+      await signOut(auth);
+      toast.success("Logout successfull!");
+      setIsOpen(false);
+    } catch (error) {
+      toast.error("Logout fail unfortunately!");
+    }
+  }
   return (
     <nav className="header">
       <Link to="/" onClick={() => setIsOpen(false)}>
@@ -46,7 +52,7 @@ function Header() {
           </dialog>
         </>
       ) : (
-        <Link to="/login">
+        <Link to="/auth/login">
           <FaSignInAlt />
         </Link>
       )}

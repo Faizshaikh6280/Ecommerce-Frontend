@@ -1,44 +1,70 @@
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import {auth} from "../../firebase";
+import { auth } from "../../firebase";
 import toast from "react-hot-toast";
 import { useLoginMutation } from "../redux/api/userApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { MessageResponse } from "../types/api-types/type";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/slices/userSlice";
 
 const Login = () => {
-  const [gender, setGender] = useState("");
-  const [date, setDate] = useState("");
-  // const [password, setPassword] = useState("");
-  // const [conifrmPassword, setConifrmPassword] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const [login] = useLoginMutation();
 
-  async function loginHandler(){
+  async function loginHandlerByProvider() {
     try {
       const provider = new GoogleAuthProvider();
-      const {user} = await signInWithPopup(auth,provider);
-
-    const res = await login({
-        name : user.displayName,
-        email : user.email,
-        photo : user.photoURL,
-        id : user.uid,
-        dob : date,
-        gender,
-        isByProvider : true,
+      const { user } = await signInWithPopup(auth, provider);
+      console.log(user);
+      const res = await login({
+        id: user.uid,
+        isByProvider: true,
       });
 
-    if("data" in res){
-      toast.success(res.data.message);
-    }else{
-      const error = res.error as FetchBaseQueryError;
-      const message = (error.data as MessageResponse).message
-      toast.error(message);
-    }
+      if ("data" in res) {
+        console.log(res);
+        toast.success(res.data.message);
+        dispatch(setUser(res.data.data));
+        navigate("/");
+      } else {
+        const error = res.error as FetchBaseQueryError;
+        const message = (error.data as MessageResponse).message;
+        toast.error(message);
+      }
     } catch (error) {
-      toast.error("Sign In Fail.")
+      toast.error("Sign up Fail.");
+    }
+  }
+
+  async function loginHandler(e) {
+    try {
+      e.preventDefault();
+      const res = await login({
+        email,
+        password,
+      });
+
+      if ("data" in res) {
+        toast.success(res.data.message);
+        setEmail("");
+        setPassword("");
+        dispatch(setUser(res.data.data));
+        navigate("/");
+      } else {
+        const error = res.error as FetchBaseQueryError;
+        const message = (error.data as MessageResponse).message;
+        toast.error(message);
+      }
+    } catch (error) {
+      toast.error("Login up Fail.");
     }
   }
 
@@ -46,46 +72,39 @@ const Login = () => {
     <div className="login">
       <main>
         <h1 className="heading">Login</h1>
+        <form action="" onSubmit={loginHandler}>
+          <div>
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>Password</label>
+            <input
+              type="text"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
+          <div>
+            <button type="submit">
+              <span>Log in </span>
+            </button>
+          </div>
+        </form>
         <div>
-          <label>Gender</label>
-          <select value={gender} onChange={(e) => setGender(e.target.value)}>
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-        </div>
-
-        <div>
-          <label>Date of birth</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
-        {/* <div>
-          <label>Password</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Date of birth</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div> */}
-
-        <div>
-          <p>Already Signed In Once</p>
-          <button onClick={loginHandler}>
-            <FcGoogle /> <span>Sign in with Google</span>
+          <button onClick={loginHandlerByProvider}>
+            <FcGoogle /> <span>Log in with Google</span>
           </button>
+        </div>
+        <div>
+          <span>Don't have account?</span>
+          <NavLink to="/auth/signup">Signup </NavLink>
         </div>
       </main>
     </div>
