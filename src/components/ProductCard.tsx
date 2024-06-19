@@ -9,8 +9,6 @@ type ProductProps = {
   handler: () => void;
 };
 
-const server = "";
-
 function ProductCard({
   productId,
   name,
@@ -21,7 +19,7 @@ function ProductCard({
 }: ProductProps) {
   return (
     <div className="product-card">
-      <img src={photo} alt={name} />
+      <img src={`${import.meta.env.VITE_SERVER}/images/${photo}`} alt={name} />
       <p>{name}</p>
       <p>
         <strong>₹{price}</strong>

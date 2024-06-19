@@ -225,6 +225,30 @@ $color3: rgb(0, 104, 136);
   border-radius: 10px;
 }
 
+.sketon-loader {
+  display: flex;
+  gap: 16px;
+  > div {
+    width: 300px;
+    height: 350px;
+    border-radius: 15px;
+    background-color: #ccc;
+    animation: blink infinite linear;
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
 .loader {
   width: 100%;
   height: 100vh;

@@ -1,12 +1,15 @@
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Column } from "react-table";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import TableHOC from "../../components/admin/TableHOC";
+import { useAllAdminsProductQuery } from "../../redux/api/productApi";
+import toast from "react-hot-toast";
 
 interface DataType {
   photo: ReactElement;
+  id: string;
   name: string;
   price: number;
   stock: number;
@@ -36,11 +39,6 @@ const columns: Column<DataType>[] = [
   },
 ];
 
-const img =
-  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8c2hvZXN8ZW58MHx8MHx8&w=1000&q=804";
-
-const img2 = "https://m.media-amazon.com/images/I/514T0SvwkHL._SL1500_.jpg";
-
 const arr: Array<DataType> = [
   {
     photo: <img src={img} alt="Shoes" />,
@@ -60,7 +58,23 @@ const arr: Array<DataType> = [
 ];
 
 const Products = () => {
+  const { data, isLoading, isError } = useAllAdminsProductQuery();
   const [rows, setRows] = useState<DataType[]>(arr);
+
+  useEffect(() => {
+    if (data)
+      setRows(
+        data.products.map((i) => ({
+          photo: <img src={`${server}/${i.photo}`} />,
+          name: i.name,
+          price: i.price,
+          stock: i.stock,
+          action: <Link to={`/admin/product/${i._id}`}>Manage</Link>,
+        }))
+      );
+  }, [data]);
+
+  if (isError) return toast.error("Error while loading products!");
 
   const Table = TableHOC<DataType>(
     columns,

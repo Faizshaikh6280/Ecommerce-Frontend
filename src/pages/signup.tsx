@@ -7,9 +7,10 @@ import { useSignupMutation } from "../redux/api/userApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { MessageResponse } from "../types/api-types/type";
 import { v4 as uuidv4 } from "uuid";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [gender, setGender] = useState("");
   const [date, setDate] = useState("");
   const [password, setPassword] = useState("");
@@ -36,6 +37,7 @@ const Signup = () => {
       if ("data" in res) {
         toast.success(res.data.message);
         setDate("");
+        navigate("/");
       } else {
         const error = res.error as FetchBaseQueryError;
         const message = (error.data as MessageResponse).message;
@@ -66,6 +68,7 @@ const Signup = () => {
         setPassword("");
         setConfirmPassword("");
         setDate("");
+        navigate("/");
       } else {
         const error = res.error as FetchBaseQueryError;
         const message = (error.data as MessageResponse).message;

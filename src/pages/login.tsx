@@ -31,16 +31,16 @@ const Login = () => {
 
       if ("data" in res) {
         console.log(res);
-        toast.success(res.data.message);
         dispatch(setUser(res.data.data));
         navigate("/");
+        toast.success(`Welcom ${res.data.data.name}!`);
       } else {
         const error = res.error as FetchBaseQueryError;
         const message = (error.data as MessageResponse).message;
         toast.error(message);
       }
     } catch (error) {
-      toast.error("Sign up Fail.");
+      toast.error("Sign in Fail.");
     }
   }
 
@@ -53,18 +53,19 @@ const Login = () => {
       });
 
       if ("data" in res) {
-        toast.success(res.data.message);
+        console.log(res);
         setEmail("");
         setPassword("");
         dispatch(setUser(res.data.data));
         navigate("/");
+        toast.success(`Welcom ${res.data.data.name}`);
       } else {
         const error = res.error as FetchBaseQueryError;
         const message = (error.data as MessageResponse).message;
         toast.error(message);
       }
     } catch (error) {
-      toast.error("Login up Fail.");
+      toast.error("Login in Fail.");
     }
   }
 

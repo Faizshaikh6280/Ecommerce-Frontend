@@ -70,7 +70,6 @@ export default function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/search" element={<Search />} />
           <Route
-            path="/"
             element={
               <ProtectedRoute
                 isAuthenticated={user ? false : true}
@@ -92,6 +91,7 @@ export default function App() {
           >
             <Route path="/shipping" element={<Shipping />} />
             <Route path="/orders" element={<Orders />} />
+
             {/* <Route path="/order/:id" element={<OrderDetails />} /> */}
             {/* <Route path="/pay" element={<Checkout />} /> */}
           </Route>
@@ -135,10 +135,10 @@ export default function App() {
         containerStyle={{ margin: "8px" }}
         toastOptions={{
           success: {
-            duration: 4000,
+            duration: 3000,
           },
           error: {
-            duration: 5000,
+            duration: 3000,
           },
           style: {
             padding: "16px 24px",
